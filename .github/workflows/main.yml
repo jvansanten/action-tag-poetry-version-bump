@@ -13,7 +13,7 @@ jobs:
     - name: run
       uses: ./
     - name: test
-      uses: actions/github-script@v6
-      with:
-        script: |
-          console.assert( ${{ steps.run.outputs.should_publish }} );
+      if: "${{steps.run.outputs.should_publish}}"
+      run: |
+        echo "::error file={name},line={line},endLine={endLine},title={title}::{message}"
+        exit 1

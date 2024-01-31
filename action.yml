@@ -10,7 +10,10 @@ inputs:
 outputs:
   should_publish: # id of output
     description: 'New tag created'
-    value: ${{ steps.check.outputs.result }}
+    value: ${{ fromJSON(steps.check.outputs.result).release }}
+  version:
+    description: name of tag
+    value: ${{ fromJSON(steps.check.outputs.result).version }}
 runs:
   using: 'composite'
   steps:
@@ -23,6 +26,7 @@ runs:
     id: check
     uses: actions/github-script@v6
     with:
+      result-encoding: json
       script: |
         const toml = require('toml')
         async function getVersion(ref) {
@@ -85,4 +89,4 @@ runs:
         } else if (!is_target) {
           console.log(`Skipping publish (push to ${context.payload.ref} !~ ${target_pattern}`);
         }
-        return release;
+        return {release: release, ref: ref, version: after};

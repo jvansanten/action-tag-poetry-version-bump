@@ -10,10 +10,10 @@ inputs:
 outputs:
   should_publish: # id of output
     description: 'New tag created'
-    value: ${{ steps.check.outputs.result.release }}
+    value: ${{ toJSON(steps.check.outputs.result.release) }}
   version:
     description: name of tag
-    value: ${{ steps.check.outputs.result.version }}
+    value: ${{ toJSON(steps.check.outputs.result.version) }}
 runs:
   using: 'composite'
   steps:

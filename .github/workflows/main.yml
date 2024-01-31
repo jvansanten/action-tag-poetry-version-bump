@@ -15,5 +15,5 @@ jobs:
     - name: test
       if: "!${{steps.run.outputs.should_publish}}"
       run: |
-        echo "::error file={name},line={line},endLine={endLine},title={title}::{message}"
+        echo "::error file={name},line={line},endLine={endLine},title={title}::${{ steps.run.outputs }}"
         exit 1

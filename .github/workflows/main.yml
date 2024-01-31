@@ -15,5 +15,5 @@ jobs:
     - id: test
       if: "!${{steps.run.outputs.should_publish}}"
       run: |
-        echo "::error file={name},line={line},endLine={endLine},title={title}::${{ steps.run.outputs }}"
+        echo "::error file={name},line={line},endLine={endLine},title={title}::${{ toJSON(steps.run.outputs) }}"
         exit 1

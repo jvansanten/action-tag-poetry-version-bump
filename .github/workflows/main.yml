@@ -10,5 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: test
+    - name: run
       uses: ./
+    - name: test
+      uses: actions/github-script@v6
+      with:
+        script: |
+          console.assert( ${{ steps.run.outputs.should_publish }} );

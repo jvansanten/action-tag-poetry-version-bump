@@ -10,9 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: run
+    - id: run
       uses: ./
-    - name: test
+    - id: test
       if: "!${{steps.run.outputs.should_publish}}"
       run: |
         echo "::error file={name},line={line},endLine={endLine},title={title}::${{ steps.run.outputs }}"

@@ -14,6 +14,8 @@ outputs:
   version:
     description: name of tag
     value: ${{ toJSON(steps.check.outputs.result.version) }}
+  result:
+    value: ${{ toJSON(steps.check.outputs.result) }}
 runs:
   using: 'composite'
   steps:

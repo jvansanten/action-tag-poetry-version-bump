@@ -52,7 +52,7 @@ runs:
         is_target = target_pattern.exec(context.payload.ref)
 
         // a tag matching the version was just pushed
-        let release = context.payload.ref == ref;
+        let release = Boolean(context.payload.ref == ref);
         if (release) {
           console.log(`Tag ${{ inputs.tag_prefix }}${after} pushed (${context.sha})`);
         }

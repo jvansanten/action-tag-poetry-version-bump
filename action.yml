@@ -4,6 +4,9 @@ inputs:
   base_branches:
     description: regex for base branches to create releases from
     default: ""
+  release_prefix:
+    description: tag prefix to treat as release
+    default: "v"
 outputs:
   should_publish: # id of output
     description: 'New tag created'
@@ -43,7 +46,7 @@ runs:
           }
         }
         after = await getVersion(context.payload.after);
-        ref = `refs/tags/v${after}`
+        ref = `refs/tags/${{ inputs.tag_prefix }}${after}`
         const base_branch_pattern = "${{ inputs.base_branches }}"
         target_pattern = new RegExp(`^refs/heads/(?<target>${context.payload.repository.default_branch}|(?:${{ inputs.base_branches }}))$`)
         is_target = target_pattern.exec(context.payload.ref)
@@ -51,7 +54,7 @@ runs:
         // a tag matching the version was just pushed
         let release = context.payload.ref == ref;
         if (release) {
-          console.log(`Tag v${after} pushed (${context.sha})`);
+          console.log(`Tag ${{ inputs.tag_prefix }}${after} pushed (${context.sha})`);
         }
         // the version on the default branch changed; create a tag
         if (!release && is_target) {

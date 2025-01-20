@@ -15,14 +15,14 @@ runs:
   - uses: actions/setup-node@v3
     with:
       node-version: 20
-  - run: npm install toml@3.0.0
+  - run: npm install '@iarna/toml@2.2.5'
     shell: bash
   - name: Ensure tag for version bump
     id: check
     uses: actions/github-script@v6
     with:
       script: |
-        const toml = require('toml')
+        const toml = require('@iarna/toml')
         async function getVersion(ref) {
           try {
             response = await github.rest.repos.getContent({

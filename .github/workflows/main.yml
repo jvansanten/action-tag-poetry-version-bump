@@ -1,0 +1,19 @@
+name: ci
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - id: run
+      uses: ./
+    - id: test
+      if: "!${{steps.run.outputs.should_publish}}"
+      run: |
+        echo "::error file={name},line={line},endLine={endLine},title={title}::${{ toJSON(steps.run.outputs) }}"
+        exit 1

@@ -1,14 +1,21 @@
 name: 'Poetry tag version bump'
 description: 'Detect version bump and tag the commit'
-# inputs:
-#   who-to-greet:  # id of input
-#     description: 'Who to greet'
-#     required: true
-#     default: 'World'
+inputs:
+  base_branches:
+    description: regex for base branches to create releases from
+    default: ""
+  release_prefix:
+    description: tag prefix to treat as release
+    default: "v"
 outputs:
   should_publish: # id of output
     description: 'New tag created'
-    value: ${{ steps.check.outputs.result }}
+    value: ${{ toJSON(steps.check.outputs.result.release) }}
+  version:
+    description: name of tag
+    value: ${{ toJSON(steps.check.outputs.result.version) }}
+  result:
+    value: ${{ fromJSON(steps.check.outputs.result) }}
 runs:
   using: 'composite'
   steps:
@@ -21,6 +28,7 @@ runs:
     id: check
     uses: actions/github-script@v6
     with:
+      result-encoding: json
       script: |
         const toml = require('@iarna/toml')
         async function getVersion(ref) {
@@ -44,19 +52,21 @@ runs:
           }
         }
         after = await getVersion(context.payload.after);
-        ref = `refs/tags/v${after}`
-        is_main = context.payload.ref === `refs/heads/${context.payload.repository.default_branch}`
+        ref = `refs/tags/${{ inputs.tag_prefix }}${after}`
+        const base_branch_pattern = "${{ inputs.base_branches }}"
+        target_pattern = new RegExp(`^refs/heads/(?<target>${context.payload.repository.default_branch}|(?:${{ inputs.base_branches }}))$`)
+        is_target = target_pattern.exec(context.payload.ref)
 
         // a tag matching the version was just pushed
-        let release = context.payload.ref == ref;
+        let release = Boolean(context.payload.ref == ref);
         if (release) {
-          console.log(`Tag v${after} pushed (${context.sha})`);
+          console.log(`Tag ${{ inputs.tag_prefix }}${after} pushed (${context.sha})`);
         }
         // the version on the default branch changed; create a tag
-        if (!release && is_main) {
+        if (!release && is_target) {
           before = await getVersion(context.payload.before);
           if (before !== after) {
-            console.log(`Version bumped: ${before} -> ${after}`);
+            console.log(`Version bumped on ${is_target.groups.target}: ${before} -> ${after}`);
             try {
               await github.rest.git.createRef({
                 owner: context.repo.owner,
@@ -78,7 +88,7 @@ runs:
           } else {
             console.log(`Skipping publish (version is still ${before})`);
           }
-        } else if (!is_main) {
-          console.log(`Skipping publish (push to ${context.payload.ref} != refs/heads/${context.payload.repository.default_branch})`);
+        } else if (!is_target) {
+          console.log(`Skipping publish (push to ${context.payload.ref} !~ ${target_pattern}`);
         }
-        return release;
+        return {release: release, ref: ref, version: after};

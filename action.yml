@@ -14,7 +14,7 @@ runs:
   steps:
   - uses: actions/setup-node@v3
     with:
-      node-version: 20
+      node-version: 22
   - run: npm install '@iarna/toml@2.2.5'
     shell: bash
   - name: Ensure tag for version bump

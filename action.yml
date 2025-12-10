@@ -31,10 +31,8 @@ runs:
               path: 'pyproject.toml',
               ref: ref
             });
-            return toml.parse(Buffer.from(response.data.content, 'base64').toString())
-              .tool
-              .poetry
-              .version;
+            pyproject = toml.parse(Buffer.from(response.data.content, 'base64').toString());
+            return pyproject.project?.version || pyproject.tool?.poetry?.version;
           } catch (exc) {
             if (exc.name == 'HttpError' && exc.status == 404) {
               return null;
